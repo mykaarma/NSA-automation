@@ -103,12 +103,11 @@ def create_appointment(row, appt_date, appt_time, slot_size, dealer_uuid, filter
             "comments": "",
             "internalNotes": "Next Service Appointment scheduled automatically by script.",
             "customerAppointmentPreference": {
-                "notifyCustomer": True,
-                "emailConfirmation": True,
-                "textConfirmation": True,
-                "emailReminder": True,
-                "textReminder": True,
-                
+                "notifyCustomer": False,
+                "emailConfirmation": False,
+                "textConfirmation": False,
+                "emailReminder": False,
+                "textReminder": False
             },
             "status": None,
             "recall": False,
