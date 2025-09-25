@@ -9,7 +9,9 @@ This tool helps you automatically extract closed Repair Orders (ROs) from the my
 3. **Track Appointments**: Maintains a cache of created appointments using RO numbers to prevent duplicates and prompt users about existing appointments
 4. **Send Notifications**: Automatically sends customizable text and email notifications to customers about their scheduled appointments
 
+
 ## Table of Contents
+
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
