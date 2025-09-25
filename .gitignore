@@ -168,6 +168,9 @@ $RECYCLE.BIN/
 # All Excel files (generated results and dealer-specific data)
 *.xlsx
 
+# Cache files
+appointment_cache.json
+
 # Temporary files
 *.tmp
 *.temp

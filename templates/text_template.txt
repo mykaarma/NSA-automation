@@ -1,0 +1,3 @@
+<text>
+<body>Hi _customer_firstname, as a courtesy we've scheduled your next service at _dealer_name. We'll contact you beforehand to confirm details, address any additional service needs, and discuss transportation. Need any adjustments? Just let us know!</body>
+</text>

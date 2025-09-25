@@ -4,8 +4,10 @@ This tool helps you automatically extract closed Repair Orders (ROs) from the my
 
 ## What This Tool Does
 
-1. **Extract Closed ROs**: Looks at repair orders that were closed on a specific date and filters them based on specific service codes (opcodes)
+1. **Extract Closed ROs**: Looks at repair orders that were closed on a specific date or date range and filters them based on specific service codes (opcodes)
 2. **Schedule Appointments**: Automatically creates follow-up service appointments for customers whose ROs contained specific service codes
+3. **Track Appointments**: Maintains a cache of created appointments using RO numbers to prevent duplicates and prompt users about existing appointments
+4. **Send Notifications**: Automatically sends customizable text and email notifications to customers about their scheduled appointments
 
 ## Table of Contents
 
@@ -14,6 +16,7 @@ This tool helps you automatically extract closed Repair Orders (ROs) from the my
 - [Project Setup](#project-setup)
 - [Configuration](#configuration)
 - [How to Use](#how-to-use)
+- [Notifications & Templates](#notifications--templates)
 - [File Structure](#file-structure)
 - [Support](#support)
 
@@ -265,11 +268,14 @@ This step finds all repair orders that were closed on a specific date and filter
 
 3. **Follow the prompts**:
    - **Select a dealer**: You'll see a numbered list of dealers. Type the number and press Enter
-   - **Enter close date**: Type the date in YYYY-MM-DD format (e.g., `2024-03-15`)
+   - **Choose extraction method**: Select between single date or date range
+     - **Single date**: Extract ROs closed on a specific date (e.g., `2024-03-15`)
+     - **Date range**: Extract ROs closed within a date range (e.g., from `2024-03-10` to `2024-03-15`)
+   - **Enter date(s)**: Type the date(s) in YYYY-MM-DD format
    - **Handle existing files**: If `closed_ros.xlsx` already exists, you can choose to keep existing data or start fresh
 
 4. **Wait for completion**: The script will:
-   - Fetch all closed ROs for that date
+   - Fetch all closed ROs for the specified date(s)
    - Check each RO for your specified opcodes
    - Save matching ROs to `closed_ros.xlsx`
 
@@ -300,18 +306,56 @@ This step takes the extracted ROs and creates follow-up appointments.
    python schedule_appointments_from_extracted_ros.py
    ```
 
-3. **Wait for completion**: The script will:
+3. **Duplicate Detection**: The script will:
+   - Check for RO numbers that already have appointments created
+   - If duplicates are found, prompt you to choose whether to create new appointments
+   - Display details about existing appointments (customer name, creation date, appointment UUID)
+
+4. **Wait for completion**: The script will:
    - Read each RO from `closed_ros.xlsx`
    - Calculate when the next service should be (based on months configured)
    - Add the dealer's default NSA opcode to the service list (for reporting identification)
    - Find available appointment slots
    - Create appointments in myKaarma with both RO opcodes and default NSA opcode
+   - Track created appointments in a cache file (`appointment_cache.json`)
    - Save results to `schedule_results.xlsx`
 
-4. **Check the results**: A file called `schedule_results.xlsx` will be created showing:
+5. **Check the results**: A file called `schedule_results.xlsx` will be created showing:
    - Which appointments were successfully created
    - Which ones failed and why
    - Appointment dates and times
+
+### Appointment Tracking
+
+The tool automatically maintains a cache file (`appointment_cache.json`) that tracks:
+- RO Numbers that have had appointments created
+- Customer information (first name, last name)
+- Dealer ID
+- Creation date and time
+- Appointment UUID
+
+This prevents accidental duplicate appointments and provides visibility into what has already been processed. The cache file is automatically managed by the script and helps ensure data integrity across multiple runs.
+
+## Notifications & Templates
+
+The tool automatically sends text and email notifications to customers when appointments are created. Both notification types use customizable XML-based templates with support for:
+
+- **Dynamic Variables**: Customer names, dealer information, appointment dates/times
+- **Automatic Date Formatting**: Converts dates to user-friendly formats (e.g., "Monday, January 15, 2024")
+- **Consistent Formatting**: Both templates follow the same XML structure for easy maintenance
+
+### Template Customization
+
+If you want to customize the notification messages sent to customers, modify the template files in the `templates/` directory:
+- `templates/email_template.txt` - Email notification template
+- `templates/text_template.txt` - Text message template
+
+**📖 For complete template configuration instructions, variable reference, date formatting options, and examples, see the [Template Configuration Guide](TEMPLATE_GUIDE.md).** This guide covers:
+- How to use available variables like customer names and appointment details
+- Date and time formatting patterns
+- Template structure and XML requirements
+- Common customization examples
+- Troubleshooting template issues
 
 ## File Structure
 
@@ -325,10 +369,14 @@ nsa-automation/
 ├── .gitignore                        # Files to ignore in version control
 ├── README.md                         # This file
 ├── sample_opcodes.xlsx               # Sample opcode file (provided)
+├── templates/                        # Notification templates
+│   ├── email_template.txt           # Email notification template
+│   └── text_template.txt            # Text notification template
 ├── venv/                             # Virtual environment (created automatically)
 ├── [dealer]_opcodes.xlsx             # Your opcode files (you create these)
 ├── closed_ros.xlsx                   # Generated by extract script (ignored by git)
-└── schedule_results.xlsx             # Generated by schedule script (ignored by git)
+├── schedule_results.xlsx             # Generated by schedule script (ignored by git)
+└── appointment_cache.json            # Appointment tracking cache (ignored by git)
 ```
 
 ### What Each File Does:
@@ -342,11 +390,21 @@ nsa-automation/
 - **`.env`**: Contains your myKaarma credentials
 - **`requirements.txt`**: Lists all Python packages needed
 
+#### Documentation Files:
+- **`README.md`**: Main documentation and setup guide
+
 #### Excel Files:
 - **`sample_opcodes.xlsx`**: Sample opcode file provided for reference
 - **`[dealer]_opcodes.xlsx`**: Your dealer-specific opcode files (you create these)
 - **`closed_ros.xlsx`**: Contains extracted repair orders (generated, ignored by git)
 - **`schedule_results.xlsx`**: Contains appointment scheduling results (generated, ignored by git)
+
+#### Template Files:
+- **`templates/email_template.txt`**: XML-based email notification template
+- **`templates/text_template.txt`**: XML-based text notification template
+
+#### Cache Files:
+- **`appointment_cache.json`**: Tracks created appointments using RO numbers to prevent duplicates (generated, ignored by git)
 
 ## Support
 

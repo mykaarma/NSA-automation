@@ -55,6 +55,64 @@ def prompt_dealer():
             pass
         print("Invalid S.No. Try again.")
 
+def prompt_date_range():
+    """
+    Prompt user to choose between single date or date range extraction.
+    
+    Returns:
+        Tuple of (from_date, to_date, date_description)
+    """
+    print("\nChoose extraction method:")
+    print("1. Single date")
+    print("2. Date range")
+    
+    while True:
+        try:
+            choice = int(input("Enter your choice (1 or 2): ").strip())
+            if choice in [1, 2]:
+                break
+        except ValueError:
+            pass
+        print("Invalid choice. Please enter 1 or 2.")
+    
+    if choice == 1:
+        # Single date
+        while True:
+            date_str = input("Enter the close date (YYYY-MM-DD): ").strip()
+            try:
+                # Validate date format
+                datetime.strptime(date_str, '%Y-%m-%d')
+                return date_str, date_str, f"on {date_str}"
+            except ValueError:
+                print("Invalid date format. Please use YYYY-MM-DD format.")
+    else:
+        # Date range
+        while True:
+            from_date = input("Enter the start date (YYYY-MM-DD): ").strip()
+            try:
+                # Validate from_date format
+                from_dt = datetime.strptime(from_date, '%Y-%m-%d')
+                break
+            except ValueError:
+                print("Invalid date format. Please use YYYY-MM-DD format.")
+        
+        while True:
+            to_date = input("Enter the end date (YYYY-MM-DD): ").strip()
+            try:
+                # Validate to_date format and ensure it's not before from_date
+                to_dt = datetime.strptime(to_date, '%Y-%m-%d')
+                if to_dt < from_dt:
+                    print("End date cannot be before start date. Please try again.")
+                    continue
+                break
+            except ValueError:
+                print("Invalid date format. Please use YYYY-MM-DD format.")
+        
+        if from_date == to_date:
+            return from_date, to_date, f"on {from_date}"
+        else:
+            return from_date, to_date, f"from {from_date} to {to_date}"
+
 def load_opcodes_from_xlsx(filename):
     wb = openpyxl.load_workbook(filename)
     ws = wb.active
@@ -64,13 +122,13 @@ def load_opcodes_from_xlsx(filename):
             opcodes.add(str(row[0]).strip())
     return opcodes
 
-def fetch_closed_ros(date_str, department_uuid):
+def fetch_closed_ros(from_date, to_date, department_uuid):
     url = f"{BASE_URL}/order/v2/department/{department_uuid}/order/specificSearch"
     headers = {"accept": "application/json"}
     body = {
         "dateFilterType": "CLOSE_DATE",
-        "fromOrderDate": date_str,
-        "toOrderDate": date_str,
+        "fromOrderDate": from_date,
+        "toOrderDate": to_date,
         "orderType": "RO",
         "orderStatus": "C",
         "size": str(PAGE_SIZE)
@@ -128,12 +186,12 @@ def main():
         print(f"{xlsx_filename} already exists.")
         ans = input(f"{xlsx_filename} already exists. Do you want to keep existing data and append to it? (y/n): ").strip().lower()
         keep_existing = (ans == 'y')
-    date_str = input("Enter the close date (YYYY-MM-DD): ").strip()
+    from_date, to_date, date_description = prompt_date_range()
     opcodes_set = load_opcodes_from_xlsx(dealer_info['opcode_xlsx'])
-    orders = fetch_closed_ros(date_str, dealer_info['department_uuid'])
+    orders = fetch_closed_ros(from_date, to_date, dealer_info['department_uuid'])
     if orders is None:
         orders = []
-    print(f"Fetched {len(orders)} closed ROs for {dealer_info['name']} on {date_str}")
+    print(f"Fetched {len(orders)} closed ROs for {dealer_info['name']} {date_description}")
     rows = []
     total = len(orders)
     if USE_TQDM:
@@ -173,8 +231,10 @@ def main():
             ws.append([row.get(f) for f in XLSX_FIELDS])
         wb.save(xlsx_filename)
         print(f"\nWrote {len(rows)} filtered ROs to {xlsx_filename}")
+        print(f"Date range processed: {date_description}")
     else:
         print("No ROs matched the opcode filter.")
+        print(f"Date range processed: {date_description}")
 
 if __name__ == "__main__":
     main() 
