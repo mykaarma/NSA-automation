@@ -398,7 +398,7 @@ def main():
         filtered_opcodes = [op for op in opcodes if op in valid_opcodes]
         
         # Add default NSA opcode for this dealer (for reporting and identification)
-        default_nsa_opcode = dealer_info.get('default_nsa_opcode')
+        default_nsa_opcode = dealer_info.get('default_nsa_opcode') or dealer_info.get('default_opcode')
         if default_nsa_opcode and default_nsa_opcode not in filtered_opcodes:
             filtered_opcodes.append(default_nsa_opcode)
         
