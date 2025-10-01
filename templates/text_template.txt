@@ -1,3 +1,5 @@
 <text>
-<body>Hi _customer_firstname, as a courtesy we've scheduled your next service at _dealer_name. We'll contact you beforehand to confirm details, address any additional service needs, and discuss transportation. Need any adjustments? Just let us know!</body>
+<body>Hi _customer_firstname, as a courtesy we've scheduled your next service at _dealer_name for _appt_date at _appt_start_time. We'll contact you beforehand to confirm details, address any additional service needs, and discuss transportation. Need any adjustments? Just let us know!</body>
+<date_format>EEEE, MMMM dd, yyyy#_appt_date</date_format>
+<date_format>hh:mm a#_appt_start_time</date_format>
 </text>

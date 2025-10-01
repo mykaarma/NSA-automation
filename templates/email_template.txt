@@ -1,4 +1,6 @@
 <email>
 <subject>Your Next Vehicle Service Appointment – Scheduled as a Courtesy</subject>
-<body>Hi _customer_firstname, As a courtesy, we've conveniently scheduled your next vehicle service appointment at _dealer_name. As your appointment approaches, we'll reach out to confirm the details, address any additional service requests, and discuss your transportation needs. If you'd prefer to adjust your appointment in the meantime, please let us know—we're here to accommodate you! <br><br>Warm regards,</body>
+<body>Hi _customer_firstname, As a courtesy, we've conveniently scheduled your next vehicle service appointment at _dealer_name for _appt_date at _appt_start_time. As your appointment approaches, we'll reach out to confirm the details, address any additional service requests, and discuss your transportation needs. If you'd prefer to adjust your appointment in the meantime, please let us know—we're here to accommodate you! <br/><br/>Warm regards,</body>
+<date_format>EEEE, MMMM dd, yyyy#_appt_date</date_format>
+<date_format>hh:mm a#_appt_start_time</date_format>
 </email>
